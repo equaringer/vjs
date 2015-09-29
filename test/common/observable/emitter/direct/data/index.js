@@ -1,4 +1,4 @@
-describe('meta', function () {
+describe('data-argument', function () {
   var Observable = require('../../../../../../lib/observable')
   var a
   var measure = {}
@@ -8,11 +8,11 @@ describe('meta', function () {
     a = new Observable({
       key: 'a',
       on: {
-        change: function (event, meta) {
-          measure.a.change = meta
+        data: function (data) {
+          measure.a.data = data
         },
-        property: function (event, meta) {
-          measure.a.property = meta
+        property: function (data) {
+          measure.a.property = data
         }
       }
     })
@@ -22,19 +22,19 @@ describe('meta', function () {
     expect(a._on.property.triggerEvent).equals(false)
   })
 
-  it('passes correct meta to change', function () {
+  it('passes correct data to change', function () {
     a.val = 'a'
-    expect(measure.a.change).equals('a')
+    expect(measure.a.data).equals('a')
   })
 
-  it('passes correct meta to property', function () {
+  it('passes correct data to property', function () {
     measure.afield = {}
     a.set({
       afield: {
         val: true,
         on: {
-          change: function (event, meta) {
-            measure.afield = meta
+          data: function (data) {
+            measure.afield = data
           }
         }
       }
@@ -45,14 +45,14 @@ describe('meta', function () {
       .which.equals('afield')
   })
 
-  it('change meta should be null when removed', function () {
-    expect(measure.a.change).ok
+  it('change data should be null when removed', function () {
+    expect(measure.a.data).ok
     a.afield.remove()
-    expect(measure.a.change).equals(void 0)
     expect(measure.afield).equals(null)
+    expect(measure.a.data).equals(void 0)
   })
 
-  it('should have passed a removed array to property meta', function () {
+  it('should have passed a removed array to property data', function () {
     expect(measure.a.property)
       .to.have.property('removed')
       .which.has.property(0)

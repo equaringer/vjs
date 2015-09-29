@@ -30,8 +30,8 @@ describe('remove', function () {
       b: {
         val: 'hello',
         on: {
-          change: function (event, meta) {
-            expect(meta).to.equal(null)
+          data: function (data, event) {
+            expect(data).to.equal(null)
             expect(this.val).to.equal(null)
           }
         }
@@ -83,7 +83,7 @@ describe('remove', function () {
         prop14: {
           prop15: {
             on: {
-              change: function () {}
+              data: function () {}
             }
           }
         }
@@ -170,13 +170,13 @@ describe('remove', function () {
     // TODO:think about unifiying this system since it maye be super important for hub
     a.set({
       on: {
-        change: {
-          val: function (event, meta) {
+        data: {
+          val: function (data, event) {
             var keyCnt = measure.a.val[this.key]
             // second time is null should be b else things become very unclear
             measure.a.val[this.key] = keyCnt ? (keyCnt + 1) : 1
             measure.a.val.total++
-            if (meta === null) {
+            if (data === null) {
               measure.a.val.removed++
             }
           }
@@ -184,7 +184,7 @@ describe('remove', function () {
       }
     })
 
-    var changeEmitter = a._on.change
+    var changeEmitter = a._on.data
     var fn = changeEmitter.fn
 
     expect(fn).to.have.property('val')
@@ -200,7 +200,7 @@ describe('remove', function () {
     expect(measure.a.val.total).to.equal(2)
     expect(isRemoved(a)).msg('check if a is removed').to.be.true
     expect(isRemoved(b)).msg('check if b is removed').to.be.true
-    expect(measure.a.val.removed).msg('correct removed (meta) count').to.equal(2)
+    expect(measure.a.val.removed).msg('correct removed (data) count').to.equal(2)
   })
 
   it('create new observable --> a --> b, add ref - change listener, remove listener, test listens and removal', function () {
@@ -217,7 +217,7 @@ describe('remove', function () {
       val: reffed
     })
 
-    reffed2.on('change', a)
+    reffed2.on('data', a)
 
     b = new a.Constructor({
       key: 'b'
@@ -241,7 +241,7 @@ describe('remove', function () {
 
     a.remove()
 
-    expect(reffed2._on.change.base)
+    expect(reffed2._on.data.base)
       .msg('base listeners on reffed 2 (listens on reffed)').to.be.null
   })
 
@@ -258,8 +258,8 @@ describe('remove', function () {
       key: 'a'
     })
 
-    reffed.on('change', [ function () {}, a ])
-    reffed2.on('change', [ function () {}, a ])
+    reffed.on('data', [ function () {}, a ])
+    reffed2.on('data', [ function () {}, a ])
 
     b = new a.Constructor({ key: 'b' })
 
@@ -281,14 +281,14 @@ describe('remove', function () {
       .msg('listensOn in a (after remove)').to.equal(1)
 
     cnt = 0
-    reffed2._on.change.attach.each(function () {
+    reffed2._on.data.attach.each(function () {
       cnt++
     })
     expect(cnt)
       .msg('base listeners on reffed 2 (listens on reffed)').to.equal(1)
 
     a.remove()
-    expect(reffed2._on.change.attach).to.be.null
+    expect(reffed2._on.data.attach).to.be.null
   })
 
   it('create new observable --> a --> b remove listeners from b', function () {
@@ -299,7 +299,7 @@ describe('remove', function () {
     a = new Observable({
       key: 'a',
       on: {
-        change: function () {
+        data: function () {
           measure.a.val.total++
         }
       }
@@ -310,14 +310,14 @@ describe('remove', function () {
     })
 
     // no event since it on base (emitters are base...)
-    b._on.change.remove()
+    b._on.data.remove()
 
     a.set({
       prop1: true
     })
 
-    expect(a._on.change).to.be.ok
-    expect(b._on.change).to.be.null
+    expect(a._on.data).to.be.ok
+    expect(b._on.data).to.be.null
   })
 
   it('remove on from b', function () {
@@ -345,7 +345,7 @@ describe('remove', function () {
     var a = new Observable({
       key: 'a',
       on: {
-        change: function (event, meta) {
+        data: function () {
           cnt++
         }
       }
@@ -360,7 +360,7 @@ describe('remove', function () {
     var a = new Observable({
       key: 'a',
       on: {
-        change: function (event, meta) {
+        data: function () {
           cnt++
         }
       }
@@ -389,7 +389,7 @@ describe('remove', function () {
     var a = new Observable({
       key: 'a',
       on: {
-        change: function () {
+        data: function () {
           change++
         },
         property: function () {
@@ -410,7 +410,7 @@ describe('remove', function () {
     var a = new Observable({
       key: 'a',
       on: {
-        change: function (event) {
+        data: function () {
           change++
         },
         property: function () {
@@ -447,7 +447,7 @@ describe('remove', function () {
       trackInstances: true,
       b: {
         on: {
-          change: function (event, removed) {
+          data: function () {
             cnt[this.path[0]]++
             cnt.total++
           }
@@ -478,7 +478,7 @@ describe('remove', function () {
       c: {
         b: {
           on: {
-            change: function (event, removed) {
+            data: function () {
               cnt[this.path[0]]++
               cnt.total++
             // make parent better from context resolves current contexts and goes up
@@ -507,14 +507,14 @@ describe('remove', function () {
   it('remove tests with a nested on', function () {
     // create nested removes on instances
     var cnt = 0
-    var metaCnt = 0
+    var dataCnt = 0
     var a = new Observable({
       key: 'a',
       b: {
         on: {
-          change: function (event, meta) {
-            if (meta === null) {
-              metaCnt++
+          data: function (data, event) {
+            if (data === null) {
+              dataCnt++
             }
             cnt++
           }
@@ -522,22 +522,22 @@ describe('remove', function () {
       }
     })
     a.remove()
-    expect(metaCnt).to.equal(1)
+    expect(dataCnt).to.equal(1)
     expect(cnt).to.equal(1)
   })
 
   it('remove tests with a deep nested on', function () {
     //
     var cnt = 0
-    var metaCnt = 0
+    var dataCnt = 0
     var a = new Observable({
       key: 'a',
       b: {
         c: {
           on: {
-            change: function (event, meta) {
-              if (meta === null) {
-                metaCnt++
+            data: function (data, event) {
+              if (data === null) {
+                dataCnt++
               }
               cnt++
             }
@@ -547,12 +547,12 @@ describe('remove', function () {
     })
     a.remove()
     expect(cnt).to.equal(1)
-    expect(metaCnt).to.equal(1)
+    expect(dataCnt).to.equal(1)
   })
 
   it('remove tests with a deep nested on and instances', function () {
     var cnt = 0
-    var metaCnt = 0
+    var dataCnt = 0
     var measure = {}
     var i
     var a = new Observable({
@@ -562,10 +562,10 @@ describe('remove', function () {
         trackInstances: true,
         c: {
           on: {
-            change: function (event, meta) {
+            data: function (data, event) {
               measure[this.path[0]] = !measure[this.path[0]] ? 1 : measure[this.path[0]] + 1
-              if (meta === null) {
-                metaCnt++
+              if (data === null) {
+                dataCnt++
               }
               cnt++
             }
@@ -579,7 +579,7 @@ describe('remove', function () {
     }
     a.remove()
     expect(cnt).to.equal(11)
-    expect(metaCnt).to.equal(11)
+    expect(dataCnt).to.equal(11)
     for (i = 0; i < 10; i++) {
       expect(measure[i]).to.equal(1)
     }
@@ -621,7 +621,7 @@ describe('remove', function () {
         }
       })
       var count = 0
-      a.b.c.on('change', function () {
+      a.b.c.on('data', function () {
         count++
       })
       a.b.remove()
