@@ -11,7 +11,7 @@ describe('context', function () {
       trackInstances: true,
       b: {
         on: {
-          data: function () {
+          data () {
             var key = this.path[0]
             cnt[key] = cnt[key] ? cnt[key] + 1 : 1
             cnt.total++
@@ -46,7 +46,7 @@ describe('context', function () {
     })
 
     xit('should fire zero times for "blurf1", should not resolve context', function () {
-      // there is no change so prob should not resolve context
+      // there is no change so should not resolve context -- need to fix this later
       test.blurf1 = new test.blurf.Constructor({
         key: 'blurf1',
         b: {
@@ -71,6 +71,7 @@ describe('context', function () {
           }
         }
       })
+      // expect(test.blurf2.b.hello).to.equal(test.blurf.b.hello)
       expect(test.cnt.blurf2).to.equal(1)
     })
   })
@@ -85,7 +86,7 @@ describe('context', function () {
         // if not trackinstances on a does not track for contexts (makes sense)
         on: {
           // if the emitter is not there it will not fire for instances!
-          data: function () {}
+          data () {}
         }
       }
     })
@@ -129,7 +130,12 @@ describe('context', function () {
 
   describe('emit on instance', function () {
     var test = contextObservable()
-    test.aInstance.b.emit('data') // = 'b change'
+    it('emit data on b', function () {
+      test.aInstance.b.emit('data') // = 'b change'
+    })
+    it('should not fire for "a"', function () {
+      expect(test.cnt.a).not.ok // and this is correct only want to emit for context
+    })
     it('should fire once for "aInstance" context', function () {
       expect(test.cnt.aInstance).to.equal(1)
     })
@@ -196,15 +202,22 @@ describe('context', function () {
 
   describe('multiple instances', function () {
     var test = contextObservable()
+    var c
 
-    var c = new test.a.Constructor({
-      key: 'c'
+    it('create new instance', function () {
+      c = new test.a.Constructor({
+        key: 'c'
+      })
     })
 
-    test.a.b.val = 'a change'
     it('should be and instance of a', function () {
       expect(c).instanceof(test.a.Constructor)
     })
+
+    it('set a.b value', function () {
+      test.a.b.val = 'a change'
+    })
+
     it('should fire once for "a" context', function () {
       expect(test.cnt.a).to.equal(1)
     })
@@ -498,6 +511,7 @@ describe('context', function () {
       expect(measure).to.have.property('firstUseVal').which.equals(1)
     })
   })
+
   require('./nested')
   // now the test for custom emits (hard case -- sets are relativly easy)
   // for this you need to do emits to contexts to contexts -- really strange

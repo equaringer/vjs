@@ -2,28 +2,45 @@
 var Observable = require('../../../../lib/observable')
 Observable.prototype.inject(require('../../../../lib/operator/subscribe'))
 
-describe('subscribe', () => {
-  describe('bind', () => {
-    it('subscribe it', () => {
-      var child = new Observable({
-        key: 'a',
-        $: 'parent.title'
-      })
+describe('subscribe', function () {
+  describe('subscribing on parent title', function () {
+    var child = new Observable({
+      key: 'a',
+      $: 'parent.title'
+    })
 
-      var parent = new Observable({
-        title: 'myTitle',
-        a: {
-          useVal: child
-        }
-      })
+    var parent = new Observable({
+      title: 'myTitle',
+      a: {
+        useVal: child
+      }
+    })
 
+    it('child value is parent title', function () {
       expect(parent)
       expect(child.val).equals('myTitle')
     })
+
+    it('updating parent title, changes child value', function () {
+      parent.title.val = 'newTitle'
+      expect(child.val).equals('newTitle')
+    })
+
+    it('removing parent title updates child value', function () {
+      parent.title.remove()
+      expect(child.val).not.equals('newTitle')
+    })
+
+    it('adding new parent title updates child value', function () {
+      parent.set({
+        title: 'addedTitle'
+      })
+      expect(child.val).equals('addedTitle')
+    })
   })
 
-  describe('bind object', () => {
-    it('subscribe it', () => {
+  describe('bind object', function () {
+    it('subscribe it', function () {
       var child = new Observable({
         key: 'a',
         $: 'parent.info'
@@ -44,8 +61,8 @@ describe('subscribe', () => {
     })
   })
 
-  describe('bind instance', () => {
-    it('subscribe it', () => {
+  describe('bind instance', function () {
+    it('subscribe it', function () {
       var Child = new Observable({
         key: 'a',
         $: 'parent.title'
@@ -63,8 +80,8 @@ describe('subscribe', () => {
     })
   })
 
-  describe('bind object, instance', () => {
-    it('subscribe it', () => {
+  describe('bind object, instance', function () {
+    it('subscribe it', function () {
       var Child = new Observable({
         key: 'a',
         $: 'parent.info'
@@ -85,8 +102,8 @@ describe('subscribe', () => {
     })
   })
 
-  describe('bind instances', () => {
-    it('subscribe it', () => {
+  describe('bind instances', function () {
+    it('subscribe it', function () {
       var Child = new Observable({
         trackInstances: true,
         key: 'a',
@@ -109,8 +126,8 @@ describe('subscribe', () => {
     })
   })
 
-  describe('bind existing nested field', () => {
-    it('subscribe it', () => {
+  describe('bind existing nested field', function () {
+    it('subscribe it', function () {
       var child = new Observable({
         key: 'a',
         field: {
@@ -125,8 +142,8 @@ describe('subscribe', () => {
     })
   })
 
-  describe('bind non existent nested field', () => {
-    it('subscribe it', () => {
+  describe('bind non existent nested field', function () {
+    it('subscribe it', function () {
       var child = new Observable({
         key: 'a',
         $: 'field.nested.title'
@@ -144,8 +161,8 @@ describe('subscribe', () => {
     })
   })
 
-  describe('bind multiple levels', () => {
-    it('subscribe it', () => {
+  describe('bind multiple levels', function () {
+    it('subscribe it', function () {
       var child = new Observable({
         key: 'a',
         $: '$upward.title'
@@ -169,8 +186,8 @@ describe('subscribe', () => {
     })
   })
 
-  describe('bind multiple levels, multiple steps', () => {
-    it('subscribe it', () => {
+  describe('bind multiple levels, multiple steps', function () {
+    it('subscribe it', function () {
       var child = new Observable({
         key: 'a',
         $: 'parent.title'
@@ -199,8 +216,8 @@ describe('subscribe', () => {
     })
   })
 
-  describe('bind multiple levels, multiple steps, references', () => {
-    it('subscribe it', () => {
+  describe('bind multiple levels, multiple steps, references', function () {
+    it('subscribing over multiple references', function () {
       var child = new Observable({
         key: 'a',
         $: 'parent.title'
@@ -233,8 +250,8 @@ describe('subscribe', () => {
     })
   })
 
-  describe('bind, parent, instances', () => {
-    it('subscribe it', () => {
+  describe('bind, parent, instances', function () {
+    it('subscribe it', function () {
       var child = new Observable({
         key: 'a',
         $: 'parent.title'
@@ -262,8 +279,8 @@ describe('subscribe', () => {
     })
   })
 
-  describe('bind, nested, instances, existing field', () => {
-    it('subscribe it', () => {
+  describe('bind, nested, instances, existing field', function () {
+    it('subscribe it', function () {
       var Child = new Observable({
         key: 'a',
         nested: {
@@ -292,8 +309,8 @@ describe('subscribe', () => {
     })
   })
 
-  describe('bind, nested, instances, non existing field', () => {
-    it('subscribe it', () => {
+  describe('bind, nested, instances, non existing field', function () {
+    it('subscribe it', function () {
       var Child = new Observable({
         key: 'a',
         $: 'nested.title'
@@ -324,6 +341,18 @@ describe('subscribe', () => {
       expect(mother && father)
       expect(father.a.val).equals('fatherTitle')
       expect(mother.a.val).equals('motherTitle')
+    })
+  })
+
+  describe('subscribe on own value', function () {
+    xit('subscribing on self is subscribing on input', function () {
+      var ref = new Observable('ref')
+      var obs = new Observable({
+        val: ref,
+        $: true
+      })
+
+      expect(obs.$origin._input).equals(obs._input)
     })
   })
 })

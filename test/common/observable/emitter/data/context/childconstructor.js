@@ -2,7 +2,7 @@
 describe('ChildConstructor', function () {
   var Observable = require('../../../../../../lib/observable')
   var lastData, lastKeys
-  var Event = require('../../../../../../lib/event')
+  // var Event = require('../../../../../../lib/event')
   beforeEach(function () {
     lastData = []
     lastKeys = []
@@ -48,7 +48,7 @@ describe('ChildConstructor', function () {
 
   it('passes null on remove', function () {
     c.field2.remove() // order changes since now this is the last executioner
-    expect(lastData).to.deep.equal([ void 0, null ])
+    expect(lastData).to.deep.equal([ null, void 0 ])
   })
 
   it('passes null on remove using set object', function () {
@@ -61,18 +61,26 @@ describe('ChildConstructor', function () {
     expect(lastData).to.deep.equal([ null, null, void 0, void 0 ])
   })
 
-  it('works for multiple fields', function () {
+  it('works for multiple fields with references', function () {
     var c = new A({ key: 'c_childconstructor' }).Constructor
 
     var b = new Observable({
       ChildConstructor: c
     })
 
+    var d = new b.Constructor({
+      ChildConstructor: c
+    })
+
     var x = new b.Constructor({
       c: {
-        // ref: d,
+        ref: d,
         bla: true,
-        flurps: true,
+        flurps: {
+          on: {
+            data () {}
+          }
+        },
         val: 'c'
       }
     })
@@ -84,7 +92,8 @@ describe('ChildConstructor', function () {
     lastData = []
     lastKeys = []
     x.remove()
-    expect(lastKeys).to.deep.equal(['c', 'c.bla', 'c.flurps', 'f'])
-    expect(lastData).to.deep.equal([null, null, null, null])
+    // c flurps is later since it its own isntance of the shared emitter
+    expect(lastKeys).to.deep.equal(['c.ref', 'c.bla', 'c', 'c.flurps', 'f'])
+    expect(lastData).to.deep.equal([null, null, null, null, null])
   })
 })

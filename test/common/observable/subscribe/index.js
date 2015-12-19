@@ -3,8 +3,17 @@ describe('subscribe', function () {
   describe('constructor', function () {
     require('./constructor')
   })
+
   describe('direct', function () {
     require('./direct')
+  })
+
+  describe('non observable', function () {
+    require('./non-obs')
+  })
+
+  describe('data object', function () {
+    require('./dataobject')
   })
 
   describe('instances', function () {
@@ -25,5 +34,13 @@ describe('subscribe', function () {
 
   describe('remove', function () {
     require('./remove')
+  })
+
+  describe('usecases', function () {
+    require('./usecases')
+  })
+
+  describe('condition', function () {
+    require('./condition')
   })
 })
