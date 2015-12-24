@@ -54,6 +54,7 @@ describe('remove', function () {
 
   it('create new observable --> a and remove field "prop1"', function () {
     var cntKeySets = 0
+
     a = new Observable({
       key: 'a',
       on: {}, // defines that we are interested in instances
@@ -85,7 +86,7 @@ describe('remove', function () {
         prop14: {
           prop15: {
             on: {
-              data: function () {}
+              data () {}
             }
           }
         }
@@ -94,7 +95,7 @@ describe('remove', function () {
 
     a.prop1.set({
       firstProperty: true,
-      val: null,
+      val: null, // wtf?
       notImportant: true,
       notImportant2: true
     })

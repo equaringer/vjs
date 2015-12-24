@@ -9,12 +9,13 @@ beforeEach(() => {
 })
 
 describe('subscribing to non existing $upward, two levels, nested field', () => {
-  var a = new Observable()
+  var a = new Observable({key:'a'})
   var subscription
   var grandParent
   var parent
 
   it('subcribes to parent on a', () => {
+    console.clear()
     subscription = a.subscribe({
       $upward: {
         field: true
